@@ -15,7 +15,7 @@ import java.sql.DriverManager;
 public class DataBase{
     private static DataBase object = null;
     private static Connection connection = null;
-
+    public ArrayList<AccountInfo> list = new ArrayList<>();
     private DataBase() {
         try {
             connection = DriverManager.getConnection("jdbc:mysql://localhost/db", "root", "Vetri@50");
@@ -74,7 +74,7 @@ public class DataBase{
             resultSet.close();
         }
     }
-    public void storeIntoMap() {
+    public ArrayList storeIntoMap() {
         try (
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery("select * from AccountInfo")) {
@@ -84,12 +84,13 @@ public class DataBase{
             object.setBalance(resultSet.getDouble("Balance"));
             object.setAccountNumber(resultSet.getInt("AccountNo"));
             //LoadToMemory.getInstance().addAccount(object);
-            LogicalLayer.getInstance().loadMap(object);
+            list.add(object);
         }
     }
         catch (Exception e)
         {
             System.out.println(e);
         }
+        return  list;
     }
 }

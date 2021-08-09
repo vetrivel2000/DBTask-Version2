@@ -84,7 +84,7 @@ public class TestRunner {
                 }
                 case 2:
                 {
-                    LogicalLayer.getInstance().dbToMap();
+                    LogicalLayer.getInstance().loadMap();
                     System.out.println("Enter your CustomerId:");
                     int customerId = scan.nextInt();
                     System.out.println(LoadToMemory.getInstance().getAccountInfo(customerId));

@@ -1,7 +1,9 @@
 package dbtask.load;
 import dbtask.account.AccountInfo;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 
 public class LoadToMemory {
     public HashMap<Integer, HashMap> map = new HashMap<>();
@@ -14,18 +16,23 @@ public class LoadToMemory {
             object = new LoadToMemory();
         return object;
     }
-    public void addOuterMap(AccountInfo object)
+    public void addOuterMap(ArrayList<AccountInfo> list)
     {
-        if(!(map.containsKey(object.getCustomerId())))
+        Iterator iterate = list.iterator();
+        while(iterate.hasNext())
         {
-            map1 = new HashMap<>();
-            map1.put(object.getAccountNumber(),object);
-            map.put(object.getCustomerId(),map1);
-        }
-        else
-        {
-            map1=map.get(object.getCustomerId());
-            map1.put(object.getAccountNumber(),object);
+            AccountInfo object=(AccountInfo) iterate.next();
+            if(!(map.containsKey(object.getCustomerId())))
+            {
+                map1 = new HashMap<>();
+                map1.put(object.getAccountNumber(),object);
+                map.put(object.getCustomerId(),map1);
+            }
+            else
+            {
+                map1=map.get(object.getCustomerId());
+                map1.put(object.getAccountNumber(),object);
+            }
         }
     }
     public HashMap getAccountInfo(int customerId)

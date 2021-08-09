@@ -7,6 +7,7 @@ import dbtask.databasemanagement.DataBase;
 import dbtask.load.LoadToMemory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 
 public class LogicalLayer {
@@ -30,17 +31,18 @@ public class LogicalLayer {
             DataBase.getInstance().customerCreate((CustomerInfo) list1.get(0), (AccountInfo) list1.get(1));
         }
     }
-    public void dbToMap()
-    {
-        DataBase.getInstance().storeIntoMap();
-    }
+//    public void dbToMap()
+//    {
+//        DataBase.getInstance().storeIntoMap();
+//    }
     public void terminateConnection()
     {
         DataBase.closeConnection();
     }
-    public void loadMap(AccountInfo object)
+    public void loadMap()
     {
-
-        LoadToMemory.getInstance().addOuterMap(object);
+        AccountInfo object = new AccountInfo();
+        ArrayList<AccountInfo> list = DataBase.getInstance().storeIntoMap();
+        LoadToMemory.getInstance().addOuterMap(list);
     }
 }
