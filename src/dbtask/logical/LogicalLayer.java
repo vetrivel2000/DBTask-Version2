@@ -18,6 +18,10 @@ public class LogicalLayer {
             object = new LogicalLayer();
         return object;
     }
+    public void setAccount(AccountInfo object)
+    {
+        DataBase.getInstance().accountCreate(object);
+    }
     public void setData(ArrayList<ArrayList> list) throws Exception {
 
         Iterator iterate = list.iterator();
@@ -26,8 +30,17 @@ public class LogicalLayer {
             DataBase.getInstance().customerCreate((CustomerInfo) list1.get(0), (AccountInfo) list1.get(1));
         }
     }
+    public void dbToMap()
+    {
+        DataBase.getInstance().storeIntoMap();
+    }
+    public void terminateConnection()
+    {
+        DataBase.closeConnection();
+    }
     public void loadMap(AccountInfo object)
     {
+
         LoadToMemory.getInstance().addOuterMap(object);
     }
 }

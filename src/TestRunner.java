@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import dbtask.load.LoadToMemory;
 import dbtask.customer.CustomerInfo;
 import dbtask.account.AccountInfo;
-import dbtask.databasemanagement.DataBase;
 import dbtask.logical.LogicalLayer;
 
 public class TestRunner {
@@ -48,7 +47,7 @@ public class TestRunner {
                                 System.out.println("Enter the amount you want to deposit into your new account:");
                                 accountObject.setBalance(scan.nextDouble());
                                 scan.nextLine();
-                                DataBase.getInstance().accountCreate(accountObject);
+                                LogicalLayer.getInstance().setAccount(accountObject);
                                 break;
                             }
                             case 2:
@@ -85,14 +84,14 @@ public class TestRunner {
                 }
                 case 2:
                 {
-                    DataBase.getInstance().storeIntoMap();
+                    LogicalLayer.getInstance().dbToMap();
                     System.out.println("Enter your CustomerId:");
                     int customerId = scan.nextInt();
                     System.out.println(LoadToMemory.getInstance().getAccountInfo(customerId));
                     break;
                 }
                 default: {
-                    DataBase.closeConnection();
+                    LogicalLayer.getInstance().terminateConnection();
                     System.out.println("No such choice!");
                 }
             }
