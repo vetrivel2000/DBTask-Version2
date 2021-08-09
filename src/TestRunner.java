@@ -88,7 +88,7 @@ public class TestRunner {
                     DataBase.getInstance().storeIntoMap();
                     System.out.println("Enter your CustomerId:");
                     int customerId = scan.nextInt();
-                    System.out.println(LoadToMemory.getInstance().map.get(customerId));
+                    System.out.println(LoadToMemory.getInstance().getAccountInfo(customerId));
                     break;
                 }
                 default: {

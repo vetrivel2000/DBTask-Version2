@@ -28,4 +28,8 @@ public class LoadToMemory {
             map1.put(object.getAccountNumber(),object);
         }
     }
+    public HashMap getAccountInfo(int customerId)
+    {
+        return map.get(customerId);
+    }
 }
