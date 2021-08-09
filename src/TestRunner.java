@@ -12,7 +12,6 @@ import java.util.Scanner;
 import java.util.ArrayList;
 
 
-import dbtask.load.LoadToMemory;
 import dbtask.customer.CustomerInfo;
 import dbtask.account.AccountInfo;
 import dbtask.logical.LogicalLayer;
@@ -52,7 +51,6 @@ public class TestRunner {
                             }
                             case 2:
                             {
-
                                 System.out.println("Enter the no.of.accounts you want to add");
                                 no_Of_Accounts=scan.nextInt();
                                 scan.nextLine();
@@ -87,7 +85,7 @@ public class TestRunner {
                     LogicalLayer.getInstance().loadMap();
                     System.out.println("Enter your CustomerId:");
                     int customerId = scan.nextInt();
-                    System.out.println(LoadToMemory.getInstance().getAccountInfo(customerId));
+                    System.out.println(LogicalLayer.getInstance().getDetails(customerId));
                     break;
                 }
                 default: {

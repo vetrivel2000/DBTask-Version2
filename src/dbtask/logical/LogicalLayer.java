@@ -41,8 +41,12 @@ public class LogicalLayer {
     }
     public void loadMap()
     {
-        AccountInfo object = new AccountInfo();
         ArrayList<AccountInfo> list = DataBase.getInstance().storeIntoMap();
         LoadToMemory.getInstance().addOuterMap(list);
+    }
+    public HashMap getDetails(int customerId)
+    {
+        HashMap<Integer,AccountInfo> map = LoadToMemory.getInstance().getAccountInfo(customerId);
+        return map;
     }
 }
