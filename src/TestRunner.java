@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-/**
+/*
  *
  * @author vetri
  */
@@ -16,10 +16,11 @@ import dbtask.load.LoadToMemory;
 import dbtask.customer.CustomerInfo;
 import dbtask.account.AccountInfo;
 import dbtask.databasemanagement.DataBase;
+import dbtask.logical.LogicalLayer;
+
 public class TestRunner {
     public static void main(String args[]) throws Exception
     {
-
         Scanner scan = new Scanner(System.in);
         int choice;
         do{
@@ -73,7 +74,7 @@ public class TestRunner {
                                     tempList.add(accountDetails);
                                     customerData.add(tempList);
                                 }
-                                    DataBase.getInstance().setData(customerData);
+                                    LogicalLayer.getInstance().setData(customerData);
                                 break;
                             }
                             default:
@@ -84,8 +85,7 @@ public class TestRunner {
                 }
                 case 2:
                 {
-                    DataBase.getInstance().storeInnerMap();
-                    //DataBase.getInstance().storeOuterMap();
+                    DataBase.getInstance().storeIntoMap();
                     System.out.println("Enter your CustomerId:");
                     int customerId = scan.nextInt();
                     System.out.println(LoadToMemory.getInstance().map.get(customerId));
@@ -98,8 +98,4 @@ public class TestRunner {
             }
         }while(choice<3);
     }
-//    public void storeIntoList()
-//    {
-//
-//    }
 }

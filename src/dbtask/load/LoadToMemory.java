@@ -1,12 +1,11 @@
 package dbtask.load;
 import dbtask.account.AccountInfo;
-import dbtask.customer.CustomerInfo;
 
 import java.util.HashMap;
 
 public class LoadToMemory {
     public HashMap<Integer, HashMap> map = new HashMap<>();
-    public HashMap<Integer, AccountInfo> map1 = new HashMap<>();
+    public HashMap<Integer, AccountInfo> map1;
     private static LoadToMemory object = null;
     private LoadToMemory(){}
     public static LoadToMemory getInstance()
@@ -15,10 +14,6 @@ public class LoadToMemory {
             object = new LoadToMemory();
         return object;
     }
-//    public void addAccount(AccountInfo object1)
-//    {
-//        map1.put(object1.getAccountNumber(),object1);
-//    }
     public void addOuterMap(AccountInfo object)
     {
         if(!(map.containsKey(object.getCustomerId())))
@@ -32,6 +27,5 @@ public class LoadToMemory {
             map1=map.get(object.getCustomerId());
             map1.put(object.getAccountNumber(),object);
         }
-        //map.put(customerId,map1);
     }
 }
