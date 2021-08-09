@@ -1,10 +1,7 @@
 package dbtask.databasemanagement;
 import dbtask.account.AccountInfo;
 import dbtask.customer.CustomerInfo;
-import dbtask.load.LoadToMemory;
-import dbtask.logical.LogicalLayer;
 
-import java.util.Iterator;
 import java.util.ArrayList;
 import java.sql.ResultSet;
 import java.sql.Statement;
