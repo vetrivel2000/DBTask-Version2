@@ -46,7 +46,7 @@ public class TestRunner {
                                     System.out.println("Enter your CustomerId");
                                     accountObject.setCustomerId(scan.nextInt());
                                     check=LogicalLayer.getInstance().isCustomerId(accountObject.getCustomerId());
-                                    if(check==true)
+                                    if(check)
                                     {
                                         System.out.println("Enter the amount you want to deposit into your new account:");
                                         accountObject.setBalance(scan.nextDouble());
@@ -101,7 +101,7 @@ public class TestRunner {
                         System.out.println("Enter your CustomerId:");
                         int customerId = scan.nextInt();
                         flag=LogicalLayer.getInstance().isCustomerId(customerId);
-                        if(flag==true)
+                        if(flag)
                         {
                             System.out.println(LogicalLayer.getInstance().getDetails(customerId));
                             break;
