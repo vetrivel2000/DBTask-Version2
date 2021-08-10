@@ -39,8 +39,7 @@ public class LogicalLayer {
     }
     public void loadMap()
     {
-        ArrayList<AccountInfo> list = DataBase.getInstance().storeIntoList();
-        LoadToMemory.getInstance().addIntoMap(list);
+        LoadToMemory.getInstance().addIntoMap(DataBase.getInstance().storeIntoList());
     }
     public boolean isCustomerId(int customerId)
     {
