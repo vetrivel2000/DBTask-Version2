@@ -35,6 +35,18 @@ public class LoadToMemory {
             }
         }
     }
+    public boolean isCustomerId(int customerId)
+    {
+        AccountInfo object = new AccountInfo();
+        if(map.containsKey(customerId))
+        {
+            return true;
+        }
+        else
+        {
+            return  false;
+        }
+    }
     public HashMap getAccountInfo(int customerId)
     {
         return map.get(customerId);

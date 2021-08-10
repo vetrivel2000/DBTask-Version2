@@ -40,6 +40,11 @@ public class LogicalLayer {
         ArrayList<AccountInfo> list = DataBase.getInstance().storeIntoList();
         LoadToMemory.getInstance().addIntoMap(list);
     }
+    public boolean isCustomerId(int customerId)
+    {
+        boolean key=LoadToMemory.getInstance().isCustomerId(customerId);
+        return key;
+    }
     public HashMap getDetails(int customerId)
     {
         HashMap<Integer,AccountInfo> map = LoadToMemory.getInstance().getAccountInfo(customerId);

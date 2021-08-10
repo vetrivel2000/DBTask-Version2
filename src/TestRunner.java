@@ -82,10 +82,23 @@ public class TestRunner {
                 }
                 case 2:
                 {
-                    LogicalLayer.getInstance().loadMap();
-                    System.out.println("Enter your CustomerId:");
-                    int customerId = scan.nextInt();
-                    System.out.println(LogicalLayer.getInstance().getDetails(customerId));
+                    boolean flag=true;
+                    do {
+                        LogicalLayer.getInstance().loadMap();
+                        System.out.println("Enter your CustomerId:");
+                        int customerId = scan.nextInt();
+                        flag=LogicalLayer.getInstance().isCustomerId(customerId);
+                        if(flag==true)
+                        {
+                            System.out.println(LogicalLayer.getInstance().getDetails(customerId));
+                            break;
+                        }
+                        else
+                        {
+                            System.out.println("Please enter the correct customerId...");
+                            flag=true;
+                        }
+                    }while(flag);
                     break;
                 }
                 default: {
