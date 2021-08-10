@@ -73,15 +73,16 @@ public class TestRunner {
     {
         boolean check = true;
         do {
-            AccountInfo accountObject = new AccountInfo();
+
             System.out.println("Enter your CustomerId");
-            accountObject.setCustomerId(scan.nextInt());
-            check=LogicalLayer.getInstance().isAlreadyCustomer(accountObject.getCustomerId());
+            int customerId=scan.nextInt();
+            check=LogicalLayer.getInstance().isAlreadyCustomer(customerId);
             if(check)
             {
                 System.out.println("Enter the amount you want to deposit into your new account:");
-                accountObject.setBalance(scan.nextDouble());
+                double balance=scan.nextDouble();
                 scan.nextLine();
+                AccountInfo accountObject = LogicalLayer.getAccountObject(customerId,balance);
                 LogicalLayer.getInstance().setAccount(accountObject);
                 break;
             }
