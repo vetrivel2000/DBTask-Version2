@@ -44,12 +44,10 @@ public class LogicalLayer {
     }
     public boolean isCustomerId(int customerId)
     {
-        boolean key=LoadToMemory.getInstance().isCustomerId(customerId);
-        return key;
+        return LoadToMemory.getInstance().isCustomerId(customerId);
     }
     public HashMap getDetails(int customerId)
     {
-        HashMap<Integer,AccountInfo> map = LoadToMemory.getInstance().getAccountInfo(customerId);
-        return map;
+        return LoadToMemory.getInstance().getAccountInfo(customerId);
     }
 }
