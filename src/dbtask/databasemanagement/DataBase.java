@@ -2,12 +2,8 @@ package dbtask.databasemanagement;
 import dbtask.account.AccountInfo;
 import dbtask.customer.CustomerInfo;
 
+import java.sql.*;
 import java.util.ArrayList;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.DriverManager;
 
 public class DataBase{
     private static DataBase object = null;
@@ -52,23 +48,20 @@ public class DataBase{
         }
     }
 
-    public void customerCreate(CustomerInfo object, AccountInfo object1) throws Exception {
-        ResultSet resultSet =null;
-        try (PreparedStatement statement = connection.prepareStatement("insert into CustomerInfo(CustomerName,MobileNo) values(?,?)",Statement.RETURN_GENERATED_KEYS))
-        {
+    public int customerCreate(CustomerInfo object) throws SQLException {
+            PreparedStatement statement = connection.prepareStatement("insert into CustomerInfo(CustomerName,MobileNo) values(?,?)",Statement.RETURN_GENERATED_KEYS);
             statement.setString(1, object.getName());
             statement.setLong(2, object.getMobileNo());
             statement.executeUpdate();
-            resultSet = statement.getGeneratedKeys();
+            ResultSet resultSet = statement.getGeneratedKeys();
             resultSet.next();
-            object1.setCustomerId(resultSet.getInt(1));
-            accountCreate(object1);
-        } catch (Exception e) {
-            System.out.println(e);
-        }
-        finally {
+            int customerId=resultSet.getInt(1);
+            object.setCustomerId(resultSet.getInt(1));
+//            object1.setCustomerId(resultSet.getInt(1));
+//            accountCreate(object1);
+            statement.close();
             resultSet.close();
-        }
+            return customerId;
     }
     public ArrayList storeIntoList() {
         try (

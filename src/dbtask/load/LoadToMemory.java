@@ -35,7 +35,7 @@ public class LoadToMemory {
             }
         }
     }
-    public boolean isCustomerId(int customerId)
+    public boolean isExistingCustomer(int customerId)
     {
         if(map.containsKey(customerId))
         {

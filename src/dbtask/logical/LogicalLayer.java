@@ -21,6 +21,27 @@ public class LogicalLayer {
             object = new LogicalLayer();
         return object;
     }
+    public static CustomerInfo getCustomerObject(String name,long mobileNo)
+    {
+        CustomerInfo object = new CustomerInfo();
+        object.setName(name);
+        object.setMobileNo(mobileNo);
+        return object;
+    }
+    public static AccountInfo getAccountObject(double balance)
+    {
+        return getAccountObject(-1,balance);
+    }
+    public static AccountInfo getAccountObject(int customerId,double balance)
+    {
+        AccountInfo object = new AccountInfo();
+        if(customerId!=-1)
+        {
+            object.setCustomerId(customerId);
+        }
+        object.setBalance(balance);
+        return object;
+    }
     public void setAccount(AccountInfo object)
     {
         DataBase.getInstance().accountCreate(object);
@@ -30,7 +51,10 @@ public class LogicalLayer {
         Iterator iterate = list.iterator();
         while (iterate.hasNext()) {
             ArrayList list1 = (ArrayList) iterate.next();
-            DataBase.getInstance().customerCreate((CustomerInfo) list1.get(0), (AccountInfo) list1.get(1));
+            int customerId=DataBase.getInstance().customerCreate((CustomerInfo) list1.get(0));
+            AccountInfo object=(AccountInfo)list1.get(1);
+            object.setCustomerId(customerId);
+            DataBase.getInstance().accountCreate(object);
         }
     }
     public void terminateConnection()
@@ -41,9 +65,9 @@ public class LogicalLayer {
     {
         LoadToMemory.getInstance().addIntoMap(DataBase.getInstance().storeIntoList());
     }
-    public boolean isCustomerId(int customerId)
+    public boolean isAlreadyCustomer(int customerId)
     {
-        return LoadToMemory.getInstance().isCustomerId(customerId);
+        return LoadToMemory.getInstance().isExistingCustomer(customerId);
     }
     public HashMap getDetails(int customerId)
     {
