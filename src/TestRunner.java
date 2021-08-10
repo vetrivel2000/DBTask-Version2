@@ -17,7 +17,7 @@ import dbtask.account.AccountInfo;
 import dbtask.logical.LogicalLayer;
 
 public class TestRunner {
-    public static void main(String args[]) throws Exception
+    public static void main(String[] args) throws Exception
     {
         Scanner scan = new Scanner(System.in);
         int choice;
