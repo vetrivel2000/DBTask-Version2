@@ -70,7 +70,7 @@ public class DataBase{
             resultSet.close();
         }
     }
-    public ArrayList storeIntoMap() {
+    public ArrayList storeIntoList() {
         try (
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery("select * from AccountInfo")) {
@@ -79,7 +79,6 @@ public class DataBase{
             object.setCustomerId(resultSet.getInt("CustomerId"));
             object.setBalance(resultSet.getDouble("Balance"));
             object.setAccountNumber(resultSet.getInt("AccountNo"));
-            //LoadToMemory.getInstance().addAccount(object);
             list.add(object);
         }
     }

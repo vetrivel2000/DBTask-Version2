@@ -16,7 +16,7 @@ public class LoadToMemory {
             object = new LoadToMemory();
         return object;
     }
-    public void addOuterMap(ArrayList<AccountInfo> list)
+    public void addIntoMap(ArrayList<AccountInfo> list)
     {
         Iterator iterate = list.iterator();
         while(iterate.hasNext())
