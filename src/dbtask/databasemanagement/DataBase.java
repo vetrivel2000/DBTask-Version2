@@ -62,7 +62,6 @@ public class DataBase{
             resultSet = statement.getGeneratedKeys();
             resultSet.next();
             object1.setCustomerId(resultSet.getInt(1));
-            //System.out.println("Your customer id is:"+resultSet.getInt(1));
             accountCreate(object1);
         } catch (Exception e) {
             System.out.println(e);

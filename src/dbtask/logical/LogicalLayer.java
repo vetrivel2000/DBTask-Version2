@@ -31,10 +31,6 @@ public class LogicalLayer {
             DataBase.getInstance().customerCreate((CustomerInfo) list1.get(0), (AccountInfo) list1.get(1));
         }
     }
-//    public void dbToMap()
-//    {
-//        DataBase.getInstance().storeIntoMap();
-//    }
     public void terminateConnection()
     {
         DataBase.closeConnection();
