@@ -37,7 +37,6 @@ public class LoadToMemory {
     }
     public boolean isCustomerId(int customerId)
     {
-        AccountInfo object = new AccountInfo();
         if(map.containsKey(customerId))
         {
             return true;

@@ -40,13 +40,26 @@ public class TestRunner {
                         {
                             case 1:
                             {
-                                AccountInfo accountObject = new AccountInfo();
-                                System.out.println("Enter your CustomerId");
-                                accountObject.setCustomerId(scan.nextInt());
-                                System.out.println("Enter the amount you want to deposit into your new account:");
-                                accountObject.setBalance(scan.nextDouble());
-                                scan.nextLine();
-                                LogicalLayer.getInstance().setAccount(accountObject);
+                                boolean check = true;
+                                do {
+                                    AccountInfo accountObject = new AccountInfo();
+                                    System.out.println("Enter your CustomerId");
+                                    accountObject.setCustomerId(scan.nextInt());
+                                    check=LogicalLayer.getInstance().isCustomerId(accountObject.getCustomerId());
+                                    if(check==true)
+                                    {
+                                        System.out.println("Enter the amount you want to deposit into your new account:");
+                                        accountObject.setBalance(scan.nextDouble());
+                                        scan.nextLine();
+                                        LogicalLayer.getInstance().setAccount(accountObject);
+                                        break;
+                                    }
+                                    else
+                                    {
+                                        System.out.println("Please enter the correct customerId...");
+                                        check=true;
+                                    }
+                                }while (check);
                                 break;
                             }
                             case 2:

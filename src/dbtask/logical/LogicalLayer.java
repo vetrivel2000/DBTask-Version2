@@ -12,7 +12,9 @@ import java.util.Iterator;
 
 public class LogicalLayer {
     private static LogicalLayer object=null;
-    private LogicalLayer(){}
+    private LogicalLayer(){
+        loadMap();
+    }
     public static LogicalLayer getInstance()
     {
         if(object==null)
