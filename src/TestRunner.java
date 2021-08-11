@@ -105,13 +105,10 @@ public class TestRunner {
             ArrayList tempList = new ArrayList();
             System.out.println("Enter your name:");
             String name = scan.nextLine();
-            //customerObject.setName(scan.nextLine());
             System.out.println("Enter the amount you want to deposit:");
             double balance = scan.nextDouble();
-            //accountDetails.setBalance(scan.nextDouble());
             System.out.println("Enter your MobileNo:");
             long mobileNo = scan.nextLong();
-            //customerObject.setMobileNo(scan.nextLong());
             scan.nextLine();
             CustomerInfo customerObject = LogicalLayer.getCustomerObject(name,mobileNo);
             AccountInfo accountDetails = LogicalLayer.getAccountObject(balance);

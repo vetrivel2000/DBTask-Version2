@@ -11,8 +11,6 @@
 package dbtask.customer;
 
 public class CustomerInfo {
-    //public static HashMap<Integer,CustomerInfo> map = new HashMap<>();
-    //public HashMap<Integer,Integer> map1 = new HashMap<>();
     private int customerId;
     private String name;
     private long mobileNo;
