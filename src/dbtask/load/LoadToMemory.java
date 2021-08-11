@@ -5,16 +5,23 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 
-public class LoadToMemory {
-    public HashMap<Integer, HashMap> map = new HashMap<>();
-    public HashMap<Integer, AccountInfo> map1;
-    private static LoadToMemory object = null;
-    private LoadToMemory(){}
-    public static LoadToMemory getInstance()
+public enum LoadToMemory {
+    INSTANCE;
+    private HashMap<Integer, HashMap> map = new HashMap<>();
+    private HashMap<Integer, AccountInfo> map1;
+    public void dbToMap(AccountInfo object)
     {
-        if(object==null)
-            object = new LoadToMemory();
-        return object;
+        if(!(map.containsKey(object.getCustomerId())))
+        {
+            map1 = new HashMap<>();
+            map1.put(object.getAccountNumber(),object);
+            map.put(object.getCustomerId(),map1);
+        }
+        else
+        {
+            map1=map.get(object.getCustomerId());
+            map1.put(object.getAccountNumber(),object);
+        }
     }
     public void addIntoMap(ArrayList<AccountInfo> list)
     {

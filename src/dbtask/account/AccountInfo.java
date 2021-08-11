@@ -41,7 +41,10 @@ public class AccountInfo {
     @Override
     public String toString()
     {
-        String result="\nAccountInfo\n"+"AccountNumber    :"+this.accountNumber+"\n"+"CustomerId    :"+this.customerId+"\n"+"Balance       :"+this.balance+"\n";
+        String result="\nAccountInfo"+
+                "\nAccountNumber :"+this.accountNumber+
+                "\nCustomerId    :"+this.customerId+
+                "\nBalance       :"+this.balance+"\n";
         return result;
     }
 }

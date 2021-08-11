@@ -12,6 +12,7 @@ import java.util.Iterator;
 
 public class LogicalLayer {
     private static LogicalLayer object=null;
+    private final DataBase dbobject = new DataBase();
     private LogicalLayer(){
         loadMap();
     }
@@ -42,20 +43,54 @@ public class LogicalLayer {
         object.setBalance(balance);
         return object;
     }
-    public void setAccount(AccountInfo object)
+    public AccountInfo setAccount(AccountInfo object) throws Exception
     {
-        DataBase.getInstance().accountCreate(object);
+        int accountNumber=dbobject.accountCreate(object);
+        object.setAccountNumber(accountNumber);
+        LoadToMemory.INSTANCE.dbToMap(object);
+        return object;
     }
-    public void setData(ArrayList<ArrayList> list) throws Exception {
-
+    public ArrayList setData(ArrayList<ArrayList> list) {
+        ArrayList<ArrayList> correctDetails = new ArrayList<>();
+        ArrayList<ArrayList> wrongDetails = new ArrayList<>();
+        ArrayList<ArrayList> enteredDetails = new ArrayList<>();
         Iterator iterate = list.iterator();
         while (iterate.hasNext()) {
             ArrayList list1 = (ArrayList) iterate.next();
-            int customerId=DataBase.getInstance().customerCreate((CustomerInfo) list1.get(0));
-            AccountInfo object=(AccountInfo)list1.get(1);
-            object.setCustomerId(customerId);
-            DataBase.getInstance().accountCreate(object);
+            CustomerInfo object=(CustomerInfo) list1.get(0);
+            AccountInfo object1 =(AccountInfo)list1.get(1);
+            ArrayList tempList = new ArrayList();
+            ArrayList tempList1 = new ArrayList();
+            try{
+                int customerId=dbobject.customerCreate(object);
+                object.setCustomerId(customerId);
+                object1.setCustomerId(customerId);
+                try{
+                    int accountNumber=dbobject.accountCreate(object1);
+                    object1.setAccountNumber(accountNumber);
+                    LoadToMemory.INSTANCE.dbToMap(object1);
+                    tempList.add(object);
+                    tempList.add(object1);
+                    correctDetails.add(tempList);
+                }
+                catch (Exception e)
+                {
+                    dbobject.deleteCustomer(object.getCustomerId());
+                    tempList1.add(object);
+                    tempList1.add(object1);
+                    wrongDetails.add(tempList1);
+                }
+            }
+            catch (Exception e)
+            {
+                tempList1.add(object);
+                tempList1.add(object1);
+                wrongDetails.add(tempList1);
+            }
+            enteredDetails.add(correctDetails);
+            enteredDetails.add(wrongDetails);
         }
+        return enteredDetails;
     }
     public void terminateConnection()
     {
@@ -63,14 +98,17 @@ public class LogicalLayer {
     }
     public void loadMap()
     {
-        LoadToMemory.getInstance().addIntoMap(DataBase.getInstance().storeIntoList());
+        ArrayList<AccountInfo> list=dbobject.storeIntoList();
+        LoadToMemory.INSTANCE.addIntoMap(list);
     }
     public boolean isAlreadyCustomer(int customerId)
     {
-        return LoadToMemory.getInstance().isExistingCustomer(customerId);
+        boolean key =LoadToMemory.INSTANCE.isExistingCustomer(customerId);
+        return key;
     }
     public HashMap getDetails(int customerId)
     {
-        return LoadToMemory.getInstance().getAccountInfo(customerId);
+        HashMap<Integer,HashMap> map =LoadToMemory.INSTANCE.getAccountInfo(customerId);
+        return map;
     }
 }

@@ -8,6 +8,7 @@
  *
  * @author vetri
  */
+import java.util.HashMap;
 import java.util.Scanner;
 import java.util.ArrayList;
 
@@ -18,12 +19,12 @@ import dbtask.logical.LogicalLayer;
 
 public class TestRunner {
     static Scanner scan = new Scanner(System.in);
-    public static void main(String[] args) throws Exception
+    public static void main(String[] args)
     {
         int choice;
         do{
             System.out.println("Enter your choice:");
-            System.out.println("1.Add an account\n2.Show AccountInfo\n");
+            System.out.println("1.Add an account\n2.Show AccountInfo\nPress any other number to exit\n");
             choice = scan.nextInt();
             switch(choice)
             {
@@ -44,12 +45,12 @@ public class TestRunner {
             }
         }while(choice<3);
     }
-    public static void addNewAccount() throws Exception
+    public static void addNewAccount()
     {
         int choice1;
         do{
             System.out.println("Enter your choice:");
-            System.out.println("1.Already a customer\n2.New customer\n");
+            System.out.println("1.Already a customer\n2.New customer\nPress any other number to exit\n");
             choice1 = scan.nextInt();
             scan.nextLine();
             switch(choice1)
@@ -71,29 +72,28 @@ public class TestRunner {
     }
     public static void existingCustomer()
     {
-        boolean check = true;
-        do {
-
             System.out.println("Enter your CustomerId");
             int customerId=scan.nextInt();
-            check=LogicalLayer.getInstance().isAlreadyCustomer(customerId);
-            if(check)
-            {
-                System.out.println("Enter the amount you want to deposit into your new account:");
-                double balance=scan.nextDouble();
-                scan.nextLine();
-                AccountInfo accountObject = LogicalLayer.getAccountObject(customerId,balance);
-                LogicalLayer.getInstance().setAccount(accountObject);
-                break;
-            }
-            else
+            boolean check= LogicalLayer.getInstance().isAlreadyCustomer(customerId);
+            if(!check)
             {
                 System.out.println("Please enter the correct customerId...");
-                check=true;
+                return;
             }
-        }while (check);
+            System.out.println("Enter the amount you want to deposit into your new account:");
+            double balance=scan.nextDouble();
+            scan.nextLine();
+            AccountInfo accountObject = LogicalLayer.getAccountObject(customerId,balance);
+            try{
+               AccountInfo object= LogicalLayer.getInstance().setAccount(accountObject);
+               System.out.println(object);
+            }
+            catch (Exception e)
+           {
+               System.out.println(e);
+           }
     }
-    public static void newCustomer() throws Exception
+    public static void newCustomer()
     {
         int no_Of_Accounts;
         System.out.println("Enter the no.of.accounts you want to add");
@@ -119,27 +119,23 @@ public class TestRunner {
             tempList.add(accountDetails);
             customerData.add(tempList);
         }
-        LogicalLayer.getInstance().setData(customerData);
-        //System.out.println(customerData);
+        ArrayList<ArrayList> list=LogicalLayer.getInstance().setData(customerData);
+        System.out.println("The successfully added accounts are:");
+        System.out.println(list.get(0));
+        System.out.println("The accounts that are failed to add:");
+        System.out.println(list.get(1));
     }
     public static void showAccountInfo()
     {
-        boolean flag=true;
-        do {
-            LogicalLayer.getInstance().loadMap();
-            System.out.println("Enter your CustomerId:");
-            int customerId = scan.nextInt();
-            flag=LogicalLayer.getInstance().isAlreadyCustomer(customerId);
-            if(flag)
-            {
-                System.out.println(LogicalLayer.getInstance().getDetails(customerId));
-                break;
-            }
-            else
-            {
-                System.out.println("Please enter the correct customerId...");
-                flag=true;
-            }
-        }while(flag);
+        System.out.println("Enter your CustomerId:");
+        int customerId = scan.nextInt();
+        boolean flag=LogicalLayer.getInstance().isAlreadyCustomer(customerId);
+        if(! flag)
+        {
+            System.out.println("Please enter the correct customerId...");
+            return;
+        }
+        HashMap<Integer,HashMap> map = LogicalLayer.getInstance().getDetails(customerId);
+        System.out.println(map);
     }
 }

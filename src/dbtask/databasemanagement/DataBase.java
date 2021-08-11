@@ -9,7 +9,7 @@ public class DataBase{
     private static DataBase object = null;
     private static Connection connection = null;
     public ArrayList<AccountInfo> list = new ArrayList<>();
-    private DataBase() {
+    public DataBase() {
         try {
             connection = DriverManager.getConnection("jdbc:mysql://localhost/db", "root", "Vetri@50");
             System.out.println("DataBase Connected");
@@ -17,13 +17,6 @@ public class DataBase{
             System.out.println(e);
         }
     }
-
-    public static DataBase getInstance() {
-        if (object == null)
-            object = new DataBase();
-        return object;
-    }
-
     public static void closeConnection() {
         if (connection != null) {
             try {
@@ -34,20 +27,29 @@ public class DataBase{
             }
         }
     }
-
-    public void accountCreate(AccountInfo object) {
-        try (PreparedStatement statement = connection.prepareStatement("insert into AccountInfo(CustomerId,Balance) values(?,?)"))
-        {
+    public int accountCreate(AccountInfo object) throws SQLException{
+            PreparedStatement statement = connection.prepareStatement("insert into AccountInfo(CustomerId,Balance) values(?,?)",Statement.RETURN_GENERATED_KEYS);
             statement.setInt(1, object.getCustomerId());
             statement.setDouble(2, object.getBalance());
             statement.executeUpdate();
+            ResultSet resultSet = statement.getGeneratedKeys();
+            resultSet.next();
+            int accountNumber = resultSet.getInt(1);
+            statement.close();
+            resultSet.close();
+            return accountNumber;
+    }
+    public void deleteCustomer(int customerId)
+    {
+        try(Statement statement = connection.createStatement())
+        {
+            statement.executeQuery("delete from CustomerInfo where CustomerId="+customerId);
         }
         catch (Exception e)
         {
             System.out.println(e);
         }
     }
-
     public int customerCreate(CustomerInfo object) throws SQLException {
             PreparedStatement statement = connection.prepareStatement("insert into CustomerInfo(CustomerName,MobileNo) values(?,?)",Statement.RETURN_GENERATED_KEYS);
             statement.setString(1, object.getName());
@@ -56,13 +58,11 @@ public class DataBase{
             ResultSet resultSet = statement.getGeneratedKeys();
             resultSet.next();
             int customerId=resultSet.getInt(1);
-            object.setCustomerId(resultSet.getInt(1));
-//            object1.setCustomerId(resultSet.getInt(1));
-//            accountCreate(object1);
             statement.close();
             resultSet.close();
             return customerId;
     }
+
     public ArrayList storeIntoList() {
         try (
             Statement statement = connection.createStatement();
