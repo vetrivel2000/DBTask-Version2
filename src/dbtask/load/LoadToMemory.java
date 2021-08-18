@@ -3,58 +3,43 @@ import dbtask.account.AccountInfo;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
 public enum LoadToMemory {
     INSTANCE;
     private HashMap<Integer, HashMap> map = new HashMap<>();
-    private HashMap<Integer, AccountInfo> map1;
-    public void dbToMap(AccountInfo object)
+    private HashMap<Integer, AccountInfo> infoHashMap;
+    public void addToMap(AccountInfo accountInfo)
     {
-        if(!(map.containsKey(object.getCustomerId())))
+        int customerId=accountInfo.getCustomerId();
+        infoHashMap=map.get(customerId);
+        if(infoHashMap==null)
         {
-            map1 = new HashMap<>();
-            map1.put(object.getAccountNumber(),object);
-            map.put(object.getCustomerId(),map1);
+            infoHashMap = new HashMap<>();
+            map.put(customerId,infoHashMap);
         }
-        else
-        {
-            map1=map.get(object.getCustomerId());
-            map1.put(object.getAccountNumber(),object);
-        }
+        infoHashMap.put(accountInfo.getAccountNumber(),accountInfo);
     }
-    public void addIntoMap(ArrayList<AccountInfo> list)
+    public void addToMap(ArrayList<AccountInfo> list)
     {
-        Iterator iterate = list.iterator();
-        while(iterate.hasNext())
-        {
-            AccountInfo object=(AccountInfo) iterate.next();
-            if(!(map.containsKey(object.getCustomerId())))
-            {
-                map1 = new HashMap<>();
-                map1.put(object.getAccountNumber(),object);
-                map.put(object.getCustomerId(),map1);
-            }
-            else
-            {
-                map1=map.get(object.getCustomerId());
-                map1.put(object.getAccountNumber(),object);
-            }
+        for(AccountInfo accountInfo:list){
+            addToMap(accountInfo);
         }
     }
     public boolean isExistingCustomer(int customerId)
     {
-        if(map.containsKey(customerId))
-        {
-            return true;
-        }
-        else
-        {
-            return  false;
-        }
+        return map.containsKey(customerId);
+    }
+    public boolean isExistingAccountNumber(int accountNumber,int customerId)
+    {
+        infoHashMap = map.get(customerId);
+        return infoHashMap.containsKey(accountNumber);
     }
     public HashMap getAccountInfo(int customerId)
     {
         return map.get(customerId);
+    }
+    public HashMap getHashMap()
+    {
+        return map;
     }
 }

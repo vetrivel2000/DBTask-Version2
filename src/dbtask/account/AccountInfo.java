@@ -13,6 +13,7 @@ public class AccountInfo {
     private int accountNumber;
     private int customerId;
     private double balance;
+    private String status;
     public void setCustomerId(int customerId)
     {
         this.customerId=customerId;
@@ -37,7 +38,6 @@ public class AccountInfo {
     {
         return this.balance;
     }
-
     @Override
     public String toString()
     {

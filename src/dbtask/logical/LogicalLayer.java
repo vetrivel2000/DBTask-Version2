@@ -3,18 +3,32 @@ package dbtask.logical;
 
 import dbtask.account.AccountInfo;
 import dbtask.customer.CustomerInfo;
-import dbtask.databasemanagement.DataBase;
+import dbtask.exception.ExceptionHandler;
 import dbtask.load.LoadToMemory;
+import dbtask.persistence.PersistenceLayer;
 
+import java.io.FileReader;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
+import java.util.Properties;
 
 public class LogicalLayer {
     private static LogicalLayer object=null;
-    private final DataBase dbobject = new DataBase();
+    private PersistenceLayer dbobject;
     private LogicalLayer(){
-        loadMap();
+        try {
+            FileReader fileReader = new FileReader("connection.properties");
+            Properties p = new Properties();
+            p.load(fileReader);
+            String className=p.getProperty("dbname");
+            dbobject= (PersistenceLayer) Class.forName(className).newInstance();
+            loadMap();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
     }
     public static LogicalLayer getInstance()
     {
@@ -45,70 +59,225 @@ public class LogicalLayer {
     }
     public AccountInfo setAccount(AccountInfo object) throws Exception
     {
-        int accountNumber=dbobject.accountCreate(object);
+        int accountNumber=dbobject.createAccount(object);
         object.setAccountNumber(accountNumber);
-        LoadToMemory.INSTANCE.dbToMap(object);
+        LoadToMemory.INSTANCE.addToMap(object);
         return object;
     }
-    public ArrayList setData(ArrayList<ArrayList> list) {
-        ArrayList<ArrayList> correctDetails = new ArrayList<>();
-        ArrayList<ArrayList> wrongDetails = new ArrayList<>();
-        ArrayList<ArrayList> enteredDetails = new ArrayList<>();
-        Iterator iterate = list.iterator();
-        while (iterate.hasNext()) {
-            ArrayList list1 = (ArrayList) iterate.next();
-            CustomerInfo object=(CustomerInfo) list1.get(0);
-            AccountInfo object1 =(AccountInfo)list1.get(1);
-            ArrayList tempList = new ArrayList();
-            ArrayList tempList1 = new ArrayList();
-            try{
-                int customerId=dbobject.customerCreate(object);
-                object.setCustomerId(customerId);
-                object1.setCustomerId(customerId);
-                try{
-                    int accountNumber=dbobject.accountCreate(object1);
-                    object1.setAccountNumber(accountNumber);
-                    LoadToMemory.INSTANCE.dbToMap(object1);
-                    tempList.add(object);
-                    tempList.add(object1);
-                    correctDetails.add(tempList);
-                }
-                catch (Exception e)
-                {
-                    dbobject.deleteCustomer(object.getCustomerId());
-                    tempList1.add(object);
-                    tempList1.add(object1);
-                    wrongDetails.add(tempList1);
-                }
-            }
-            catch (Exception e)
+    public HashMap setData(ArrayList<ArrayList> list) throws Exception {
+        for (int i=0;i<list.size();i++)
+        {
+            CustomerInfo customerObject = (CustomerInfo) list.get(i).get(0);
+            AccountInfo accountObject = (AccountInfo) list.get(i).get(1);
+            if(customerObject.getName()==null)
             {
-                tempList1.add(object);
-                tempList1.add(object1);
-                wrongDetails.add(tempList1);
+                throw new ExceptionHandler("Some details missing");
             }
-            enteredDetails.add(correctDetails);
-            enteredDetails.add(wrongDetails);
+            if(customerObject.getMobileNo()==0)
+            {
+                throw new ExceptionHandler("Some details missing");
+            }
+            if(accountObject.getBalance()==0)
+            {
+                throw new ExceptionHandler("Some details missing");
+            }
         }
-        return enteredDetails;
+        HashMap<Object,String> status = new HashMap<>();
+          ArrayList<ArrayList> detailsList = null;
+          ArrayList<ArrayList> detailsList1=null;
+          ArrayList<Integer> indexes= new ArrayList<>();
+          try{
+              detailsList=dbobject.createCustomer(list);
+              ArrayList<Integer> customerSuccessRate =detailsList.get(0);
+              ArrayList<Integer> customerId=detailsList.get(1);
+
+              for(int i=0;i<customerSuccessRate.size();i++) {
+                  if (customerSuccessRate.get(i) < 0) {
+                      CustomerInfo customerObject = (CustomerInfo) list.get(i).get(0);
+                      status.put(customerObject, "Failure");
+                      indexes.add(i);
+                  }
+              }
+              for(int i:indexes)
+              {
+                  list.remove(i);
+              }
+              for(int i=0;i<customerId.size();i++){
+                  AccountInfo accountObject = (AccountInfo) list.get(i).get(1);
+                  CustomerInfo customerObject = (CustomerInfo) list.get(i).get(0);
+                  accountObject.setCustomerId(customerId.get(i));
+                  customerObject.setCustomerId(customerId.get(i));
+                  status.put(customerObject, "Success");
+              }
+              try{
+                  detailsList1 = dbobject.createAccount(list);
+                  ArrayList<Integer> accountSuccessRate = detailsList1.get(0);
+                  ArrayList<Integer> accountNumbers=detailsList1.get(1);
+                  for(int j=0;j<accountSuccessRate.size();j++)
+                  {
+                      if(accountSuccessRate.get(j)<0)
+                      {
+                          AccountInfo accountObject = (AccountInfo) list.get(j).get(1);
+                          status.put(accountObject,"Failure");
+                      }
+                  }
+                  for(int i=0;i<accountNumbers.size();i++){
+                      AccountInfo accountObject1 =(AccountInfo) list.get(i).get(1);
+                      accountObject1.setAccountNumber(accountNumbers.get(i));
+                      status.put(accountObject1,"Success");
+                      LoadToMemory.INSTANCE.addToMap(accountObject1);
+                  }
+              }
+                      catch (Exception e)
+                      {
+                          e.printStackTrace();
+                      }
+
+          }
+          finally {
+
+          }
+/*         for(Integer i:successRate)
+            {
+                System.out.println(i);
+            }*/
+//            for(ArrayList infoList:list)
+//            {
+//
+//            }
+//        catch (Exception e){
+//            System.out.println(e);
+//        }
+//        for(ArrayList infoList:list)
+//        {
+//            CustomerInfo customerObject=(CustomerInfo) infoList.get(0);
+//            AccountInfo accountObject =(AccountInfo)infoList.get(1);
+//            ArrayList tempList = new ArrayList();
+//            ArrayList tempList1 = new ArrayList();
+//            try{
+//                int customerId=dbobject.createCustomer(customerObject);
+//                customerObject.setCustomerId(customerId);
+//                accountObject.setCustomerId(customerId);
+//                try{
+//                    int accountNumber=dbobject.createAccount(accountObject);
+//                    accountObject.setAccountNumber(accountNumber);
+//                    LoadToMemory.INSTANCE.addToMap(accountObject);
+//                    tempList.add(customerObject);
+//                    tempList.add(accountObject);
+//                    correctDetails.add(tempList);
+//                }
+//                catch (Exception e)
+//                {
+//                    dbobject.deleteCustomer(customerObject.getCustomerId());
+//                    tempList1.add(customerObject);
+//                    tempList1.add(accountObject);
+//                    wrongDetails.add(tempList1);
+//                }
+//            }
+//            catch (Exception e)
+//            {
+//                tempList1.add(customerObject);
+//                tempList1.add(accountObject);
+//                wrongDetails.add(tempList1);
+//            }
+//            enteredDetails.add(correctDetails);
+//            enteredDetails.add(wrongDetails);
+//        }
+        return status;
     }
     public void terminateConnection()
     {
-        DataBase.closeConnection();
+        dbobject.closeConnection();
     }
-    public void loadMap()
+    public void loadMap() throws SQLException
     {
-        ArrayList<AccountInfo> list=dbobject.storeIntoList();
-        LoadToMemory.INSTANCE.addIntoMap(list);
+        ArrayList<AccountInfo> list=dbobject.storeAccountInfoToList();
+        LoadToMemory.INSTANCE.addToMap(list);
     }
     public boolean isAlreadyCustomer(int customerId)
     {
         boolean key =LoadToMemory.INSTANCE.isExistingCustomer(customerId);
         return key;
     }
-    public HashMap getDetails(int customerId)
+    public boolean isExistingAccount(int accountNumber,int customerId)
+    {
+        boolean key = LoadToMemory.INSTANCE.isExistingAccountNumber(accountNumber,customerId);
+        return key;
+    }
+    public void deleteCustomer(int customerId) throws Exception
+    {
+        HashMap<Integer,HashMap> mainMap=LoadToMemory.INSTANCE.getHashMap();
+        if(mainMap.get(customerId)==null)
+        {
+            throw new ExceptionHandler("Can't find customerId");
+        }
+        mainMap.remove(customerId);
+        dbobject.deleteCustomer(customerId);
+    }
+    public void deleteAccount(int accountNumber,int customerId) throws Exception
+    {
+        HashMap<Integer,HashMap> map=LoadToMemory.INSTANCE.getHashMap();
+        HashMap<Integer,AccountInfo> infoMap= map.get(customerId);
+        if(infoMap==null)
+        {
+            throw new ExceptionHandler("Can't find customerId");
+        }
+        if(infoMap.get(accountNumber)==null) {
+            throw new ExceptionHandler("Can't find your accountNumber!");
+        }
+        infoMap.remove(accountNumber);
+        if(infoMap.isEmpty())
+        {
+            deleteCustomer(customerId);
+        }
+        dbobject.deActivateAccount(accountNumber);
+    }
+    public void addAmount(double amount,int customerId,int accountNumber) throws Exception
+    {
+        HashMap<Integer,AccountInfo> infoMap=LoadToMemory.INSTANCE.getAccountInfo(customerId);
+        if(infoMap==null)
+        {
+            throw new ExceptionHandler("Can't find customerId");
+        }
+        if(infoMap.get(accountNumber)==null) {
+            throw new ExceptionHandler("Can't find your accountNumber!");
+        }
+        double balance=infoMap.get(accountNumber).getBalance();
+        double newBalance=balance+amount;
+        infoMap.get(accountNumber).setBalance(newBalance);
+        dbobject.insertNewCash(newBalance,accountNumber);
+    }
+    public boolean checkSufficientBalance(double amount,int customerId,int accountNumber)
+    {
+        HashMap<Integer,AccountInfo> infoMap=LoadToMemory.INSTANCE.getAccountInfo(customerId);
+        double balance=infoMap.get(accountNumber).getBalance();
+        if(balance<amount)
+        {
+            return false;
+        }
+        return true;
+    }
+    public void subtractAmount(double amount,int customerId,int accountNumber) throws Exception
+    {
+        HashMap<Integer,AccountInfo> infoMap= LoadToMemory.INSTANCE.getAccountInfo(customerId);
+        if(infoMap == null){
+            throw new ExceptionHandler("Can't find your customerId!");
+        }
+        if(infoMap.get(accountNumber)==null) {
+            throw new ExceptionHandler("Can't find your accountNumber!");
+        }
+            double balance = infoMap.get(accountNumber).getBalance();
+            double newBalance = balance - amount;
+            infoMap.get(accountNumber).setBalance(newBalance);
+            dbobject.insertNewCash(newBalance, accountNumber);
+    }
+    public HashMap getDetails(int customerId) throws Exception
     {
         HashMap<Integer,HashMap> map =LoadToMemory.INSTANCE.getAccountInfo(customerId);
+        if(map==null)
+        {
+            throw new ExceptionHandler("Can't find customerId");
+        }
         return map;
     }
 }
