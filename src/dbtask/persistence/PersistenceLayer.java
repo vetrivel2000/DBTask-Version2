@@ -16,12 +16,18 @@ public interface PersistenceLayer {
 
     void deleteCustomer(int customerId) throws SQLException;
 
+    void activateCustomer(int customerId) throws SQLException;
+
     void deActivateAccount(int accountNumber) throws SQLException;
+
+    void activateAccount(int accountNumber) throws SQLException;
 
     void insertNewCash(double newBalance,int accountNumber) throws SQLException;
 
     void deleteAccount(int customerId) throws SQLException;
 
-    ArrayList storeAccountInfoToList() throws SQLException;
+    ArrayList storeActiveInfoToList() throws SQLException;
+
+    ArrayList storeInActiveInfoToList() throws SQLException;
 }
 

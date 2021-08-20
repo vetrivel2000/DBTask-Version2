@@ -6,40 +6,73 @@ import java.util.HashMap;
 
 public enum LoadToMemory {
     INSTANCE;
-    private HashMap<Integer, HashMap> map = new HashMap<>();
-    private HashMap<Integer, AccountInfo> infoHashMap;
-    public void addToMap(AccountInfo accountInfo)
+    private HashMap<Integer,HashMap> activeMap = new HashMap<>();
+    private HashMap<Integer,HashMap> inActiveMap= new HashMap<>();
+    private HashMap<Integer,AccountInfo> infoHashMap;
+    private HashMap<Integer,AccountInfo> infoInActiveHashMap;
+    public void addToActiveMap(AccountInfo accountInfo)
     {
         int customerId=accountInfo.getCustomerId();
-        infoHashMap=map.get(customerId);
+        infoHashMap= activeMap.get(customerId);
         if(infoHashMap==null)
         {
             infoHashMap = new HashMap<>();
-            map.put(customerId,infoHashMap);
+            activeMap.put(customerId,infoHashMap);
         }
         infoHashMap.put(accountInfo.getAccountNumber(),accountInfo);
     }
-    public void addToMap(ArrayList<AccountInfo> list)
+    public void addToActiveMap(ArrayList<AccountInfo> list)
     {
         for(AccountInfo accountInfo:list){
-            addToMap(accountInfo);
+            addToActiveMap(accountInfo);
         }
     }
-    public boolean isExistingCustomer(int customerId)
+    public void addToInActiveMap(AccountInfo accountInfo)
     {
-        return map.containsKey(customerId);
+        int customerId=accountInfo.getCustomerId();
+        infoInActiveHashMap= inActiveMap.get(customerId);
+        if(infoInActiveHashMap==null)
+        {
+            infoInActiveHashMap = new HashMap<>();
+            inActiveMap.put(customerId,infoInActiveHashMap);
+        }
+        infoInActiveHashMap.put(accountInfo.getAccountNumber(),accountInfo);
     }
-    public boolean isExistingAccountNumber(int accountNumber,int customerId)
+    public void addToInActiveMap(ArrayList<AccountInfo> list)
     {
-        infoHashMap = map.get(customerId);
+        for(AccountInfo accountInfo:list){
+            addToInActiveMap(accountInfo);
+        }
+    }
+    public boolean isActiveExistingCustomer(int customerId)
+    {
+//        System.out.println(activeMap.get(customerId));
+        return activeMap.containsKey(customerId);
+    }
+    public boolean isInActiveExistingCustomer(int customerId)
+    {
+        return inActiveMap.containsKey(customerId);
+    }
+    public boolean isActiveExistingAccountNumber(int accountNumber, int customerId)
+    {
+        infoHashMap = activeMap.get(customerId);
         return infoHashMap.containsKey(accountNumber);
+    }
+    public boolean isInActiveExistingAccountNumber(int accountNumber, int customerId)
+    {
+        infoInActiveHashMap = inActiveMap.get(customerId);
+        return infoInActiveHashMap.containsKey(accountNumber);
     }
     public HashMap getAccountInfo(int customerId)
     {
-        return map.get(customerId);
+        return activeMap.get(customerId);
     }
     public HashMap getHashMap()
     {
-        return map;
+        return activeMap;
+    }
+    public HashMap getInActiveHashMap()
+    {
+        return inActiveMap;
     }
 }

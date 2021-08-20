@@ -23,7 +23,8 @@ public class LogicalLayer {
             p.load(fileReader);
             String className=p.getProperty("dbname");
             dbobject= (PersistenceLayer) Class.forName(className).newInstance();
-            loadMap();
+            loadActiveMap();
+            loadInActiveMap();
         }
         catch (Exception e)
         {
@@ -61,7 +62,7 @@ public class LogicalLayer {
     {
         int accountNumber=dbobject.createAccount(object);
         object.setAccountNumber(accountNumber);
-        LoadToMemory.INSTANCE.addToMap(object);
+        LoadToMemory.INSTANCE.addToActiveMap(object);
         return object;
     }
     public HashMap setData(ArrayList<ArrayList> list) throws Exception {
@@ -125,7 +126,7 @@ public class LogicalLayer {
                       AccountInfo accountObject1 =(AccountInfo) list.get(i).get(1);
                       accountObject1.setAccountNumber(accountNumbers.get(i));
                       status.put(accountObject1,"Success");
-                      LoadToMemory.INSTANCE.addToMap(accountObject1);
+                      LoadToMemory.INSTANCE.addToActiveMap(accountObject1);
                   }
               }
                       catch (Exception e)
@@ -161,7 +162,7 @@ public class LogicalLayer {
 //                try{
 //                    int accountNumber=dbobject.createAccount(accountObject);
 //                    accountObject.setAccountNumber(accountNumber);
-//                    LoadToMemory.INSTANCE.addToMap(accountObject);
+//                    LoadToMemory.INSTANCE.addToActiveMap(accountObject);
 //                    tempList.add(customerObject);
 //                    tempList.add(accountObject);
 //                    correctDetails.add(tempList);
@@ -189,19 +190,33 @@ public class LogicalLayer {
     {
         dbobject.closeConnection();
     }
-    public void loadMap() throws SQLException
+    public void loadActiveMap() throws SQLException
     {
-        ArrayList<AccountInfo> list=dbobject.storeAccountInfoToList();
-        LoadToMemory.INSTANCE.addToMap(list);
+        ArrayList<AccountInfo> list=dbobject.storeActiveInfoToList();
+        LoadToMemory.INSTANCE.addToActiveMap(list);
     }
-    public boolean isAlreadyCustomer(int customerId)
+    public void loadInActiveMap() throws SQLException{
+        ArrayList<AccountInfo> list=dbobject.storeInActiveInfoToList();
+        LoadToMemory.INSTANCE.addToInActiveMap(list);
+    }
+    public boolean isActiveAlreadyCustomer(int customerId)
     {
-        boolean key =LoadToMemory.INSTANCE.isExistingCustomer(customerId);
+        boolean key =LoadToMemory.INSTANCE.isActiveExistingCustomer(customerId);
         return key;
     }
-    public boolean isExistingAccount(int accountNumber,int customerId)
+    public boolean isInActiveAlreadyCustomer(int customerId)
     {
-        boolean key = LoadToMemory.INSTANCE.isExistingAccountNumber(accountNumber,customerId);
+        boolean key =LoadToMemory.INSTANCE.isInActiveExistingCustomer(customerId);
+        return key;
+    }
+    public boolean isActiveExistingAccount(int accountNumber, int customerId)
+    {
+        boolean key = LoadToMemory.INSTANCE.isActiveExistingAccountNumber(accountNumber,customerId);
+        return key;
+    }
+    public boolean isInActiveExistingAccount(int accountNumber, int customerId)
+    {
+        boolean key = LoadToMemory.INSTANCE.isInActiveExistingAccountNumber(accountNumber,customerId);
         return key;
     }
     public void deleteCustomer(int customerId) throws Exception
@@ -213,6 +228,22 @@ public class LogicalLayer {
         }
         mainMap.remove(customerId);
         dbobject.deleteCustomer(customerId);
+    }
+    public void activateCustomer(int customerId) throws Exception
+    {
+        HashMap<Integer,HashMap> mainInActiveMap =LoadToMemory.INSTANCE.getInActiveHashMap();
+        if(mainInActiveMap.get(customerId)==null)
+        {
+            throw new ExceptionHandler("Can't find customerId");
+        }
+        dbobject.activateCustomer(customerId);
+    }
+    public void activateAccount(int customerId,int accountNumber) throws Exception
+    {
+        HashMap<Integer,HashMap> inActiveHash=LoadToMemory.INSTANCE.getInActiveHashMap();
+        HashMap<Integer,AccountInfo> infoMap= inActiveHash.get(customerId);
+//        infoMap.remove(accountNumber);
+        dbobject.activateAccount(accountNumber);
     }
     public void deleteAccount(int accountNumber,int customerId) throws Exception
     {

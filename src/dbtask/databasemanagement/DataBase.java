@@ -6,9 +6,10 @@ import dbtask.persistence.PersistenceLayer;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class DataBase implements PersistenceLayer {
+public class DataBase implements PersistenceLayer{
     private static Connection connection = null;
-    public ArrayList<AccountInfo> list = new ArrayList<>();
+    public ArrayList<AccountInfo> activeList = new ArrayList<>();
+    public ArrayList<AccountInfo> inActiveList = new ArrayList<>();
     public DataBase() {
         try {
             connection = DriverManager.getConnection("jdbc:mysql://localhost/db", "root", "Vetri@50");
@@ -17,6 +18,7 @@ public class DataBase implements PersistenceLayer {
             System.out.println(e);
         }
     }
+    @Override
     public void closeConnection() {
         if (connection != null) {
             try {
@@ -27,15 +29,16 @@ public class DataBase implements PersistenceLayer {
             }
         }
     }
-    public int createAccount(AccountInfo object) throws SQLException
-    {
+
+    @Override
+    public int createAccount(AccountInfo accountInfo) throws SQLException {
         ResultSet resultSet = null;
         PreparedStatement statement = null;
         int accountNumber;
         try{
             statement = connection.prepareStatement("insert into AccountInfo(CustomerId,Balance) values(?,?)",Statement.RETURN_GENERATED_KEYS);
-            statement.setInt(1,object.getCustomerId());
-            statement.setDouble(2,object.getBalance());
+            statement.setInt(1,accountInfo.getCustomerId());
+            statement.setDouble(2,accountInfo.getBalance());
             statement.executeUpdate();
             resultSet=statement.getGeneratedKeys();
             resultSet.next();
@@ -49,8 +52,9 @@ public class DataBase implements PersistenceLayer {
         }
         return accountNumber;
     }
-    public ArrayList createAccount(ArrayList<ArrayList>list) throws SQLException
-    {
+
+    @Override
+    public ArrayList createAccount(ArrayList<ArrayList> list) throws SQLException {
         ResultSet resultSet=null;
         PreparedStatement statement=null;
         ArrayList<Integer> accountNumbers = new ArrayList<>();
@@ -106,15 +110,13 @@ public class DataBase implements PersistenceLayer {
                 resultSet.close();
             }catch(Exception e){}
         }
-//        for(int i:accountNumbers)
-//        {
-//            System.out.println(i);
-//        }
         details.add(successRate);
         details.add(accountNumbers);
         return details;
     }
-    public ArrayList<ArrayList> createCustomer(ArrayList<ArrayList>list) throws SQLException {
+
+    @Override
+    public ArrayList createCustomer(ArrayList<ArrayList> list) throws SQLException {
         ResultSet resultSet=null;
         PreparedStatement statement=null;
         ArrayList<Integer> customerId = new ArrayList<>();
@@ -174,8 +176,9 @@ public class DataBase implements PersistenceLayer {
         details.add(customerId);
         return details;
     }
-    public void deleteCustomer(int customerId) throws SQLException
-    {
+
+    @Override
+    public void deleteCustomer(int customerId) throws SQLException {
         try(Statement statement = connection.createStatement())
         {
             statement.executeUpdate("update CustomerInfo set ActiveStatus='InActive' where CustomerId="+customerId);
@@ -187,8 +190,23 @@ public class DataBase implements PersistenceLayer {
             throw e;
         }
     }
-    public void deActivateAccount(int accountNumber) throws SQLException
-    {
+
+    @Override
+    public void activateCustomer(int customerId) throws SQLException {
+        try(Statement statement = connection.createStatement())
+        {
+            statement.executeUpdate("update CustomerInfo set ActiveStatus='Active' where CustomerId="+customerId);
+            deleteAccount(customerId);
+        }
+        catch (Exception e)
+        {
+            e.addSuppressed(new SQLException("Your customerId is wrong"));
+            throw e;
+        }
+    }
+
+    @Override
+    public void deActivateAccount(int accountNumber) throws SQLException {
         try(Statement statement = connection.createStatement())
         {
             statement.executeUpdate("update AccountInfo set ActiveStatus='InActive' where AccountNo="+accountNumber);
@@ -199,8 +217,22 @@ public class DataBase implements PersistenceLayer {
             throw e;
         }
     }
-    public void insertNewCash(double newBalance,int accountNumber) throws SQLException
-    {
+
+    @Override
+    public void activateAccount(int accountNumber) throws SQLException {
+        try(Statement statement = connection.createStatement())
+        {
+            statement.executeUpdate("update AccountInfo set ActiveStatus='Active' where AccountNo="+accountNumber);
+        }
+        catch (Exception e)
+        {
+            e.addSuppressed(new SQLException("Your accountNumber is Wrong"));
+            throw e;
+        }
+    }
+
+    @Override
+    public void insertNewCash(double newBalance, int accountNumber) throws SQLException {
         try(Statement statement = connection.createStatement())
         {
             statement.executeUpdate("update AccountInfo set Balance="+newBalance+"where AccountNo="+accountNumber);
@@ -211,8 +243,9 @@ public class DataBase implements PersistenceLayer {
             throw e;
         }
     }
-    public void deleteAccount(int customerId) throws SQLException
-    {
+
+    @Override
+    public void deleteAccount(int customerId) throws SQLException {
         try(Statement statement = connection.createStatement())
         {
             statement.executeUpdate("update AccountInfo set ActiveStatus='InActive' where CustomerId="+customerId);
@@ -224,23 +257,44 @@ public class DataBase implements PersistenceLayer {
         }
     }
 
-    public ArrayList storeAccountInfoToList() throws SQLException {
+    @Override
+    public ArrayList storeActiveInfoToList() throws SQLException {
         try (
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("select * from AccountInfo where ActiveStatus='Active'")) {
-        while (resultSet.next()) {
-            AccountInfo object = new AccountInfo();
-            object.setCustomerId(resultSet.getInt("CustomerId"));
-            object.setBalance(resultSet.getDouble("Balance"));
-            object.setAccountNumber(resultSet.getInt("AccountNo"));
-            list.add(object);
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery("select * from AccountInfo where ActiveStatus='Active'")) {
+            while (resultSet.next()) {
+                AccountInfo object = new AccountInfo();
+                object.setCustomerId(resultSet.getInt("CustomerId"));
+                object.setBalance(resultSet.getDouble("Balance"));
+                object.setAccountNumber(resultSet.getInt("AccountNo"));
+                activeList.add(object);
+            }
         }
-    }
         catch (Exception e)
         {
-            e.addSuppressed(new SQLException("You have an Inactive account"));
+            e.addSuppressed(new SQLException("Some Error during fetching your account!You may have an Inactive account!!"));
             throw e;
         }
-        return  list;
+        return  activeList;
+    }
+
+    @Override
+    public ArrayList storeInActiveInfoToList() throws SQLException {
+        try (Statement statement = connection.createStatement();
+             ResultSet resultSet = statement.executeQuery("select * from AccountInfo where ActiveStatus='InActive'")){
+            while (resultSet.next()) {
+                AccountInfo object = new AccountInfo();
+                object.setCustomerId(resultSet.getInt("CustomerId"));
+                object.setBalance(resultSet.getDouble("Balance"));
+                object.setAccountNumber(resultSet.getInt("AccountNo"));
+                inActiveList.add(object);
+            }
+        }
+        catch (Exception e)
+        {
+            e.addSuppressed(new SQLException("Error!Check your credentials"));
+            throw e;
+        }
+        return inActiveList;
     }
 }

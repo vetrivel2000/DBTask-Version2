@@ -8,7 +8,6 @@
  *
  * @author vetri
  */
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Scanner;
 import java.util.ArrayList;
@@ -24,7 +23,7 @@ public class TestRunner {
         int choice;
         do{
             System.out.println("Enter your choice:");
-            System.out.println("1.Add an account\n2.Show AccountInfo\n3.Delete a customer\n4.Delete an account\n5.Deposit amount\n6.Withdraw amount\nPress any other number to exit\n");
+            System.out.println("1.Add an account\n2.Show AccountInfo\n3.Delete a customer\n4.Delete an account\n5.Deposit amount\n6.Withdraw amount\n7.RetrieveCustomer\n8.RetrieveAccount\nPress any other number to exit\n");
             choice = scan.nextInt();
             switch(choice) {
                 case 1: {
@@ -53,22 +52,32 @@ public class TestRunner {
                     withdrawAmount();
                     break;
                 }
+                case 7:
+                {
+                    retrieveCustomer();
+                    break;
+                }
+                case 8:
+                {
+                    retrieveAccount();
+                    break;
+                }
                 default: {
                     LogicalLayer.getInstance().terminateConnection();
                     System.out.println("No such choice!");
                 }
             }
-        }while(choice<7);
+        }while(choice<9);
     }
     public static void addNewAccount() throws Exception {
 
-        int choice1;
+        int choice;
         do{
             System.out.println("Enter your choice:");
             System.out.println("1.Already a customer\n2.New customer\nPress any other number to exit\n");
-            choice1 = scan.nextInt();
+            choice = scan.nextInt();
             scan.nextLine();
-            switch(choice1)
+            switch(choice)
             {
                 case 1:
                 {
@@ -83,16 +92,22 @@ public class TestRunner {
                 default:
                     System.out.println("No such choice!");
             }
-        }while(choice1<3);
+        }while(choice <3);
     }
-    public static void existingCustomer()
+    public static void existingCustomer() throws Exception
     {
             System.out.println("Enter your CustomerId");
             int customerId=scan.nextInt();
-            boolean check= LogicalLayer.getInstance().isAlreadyCustomer(customerId);
-            if(!check)
+            boolean activeCheck = LogicalLayer.getInstance().isActiveAlreadyCustomer(customerId);
+            boolean inActiveCheck = LogicalLayer.getInstance().isInActiveAlreadyCustomer(customerId);
+            if(!activeCheck && !inActiveCheck)
             {
                 System.out.println("Please enter the correct customerId...");
+                return;
+            }
+            else if(!activeCheck && inActiveCheck)
+            {
+                System.out.println("You are deactivated your Account.Please kindly retrieve it!!");
                 return;
             }
             System.out.println("Enter the amount you want to deposit into your new account:");
@@ -157,13 +172,16 @@ public class TestRunner {
     {
         System.out.println("Enter your CustomerId:");
         int customerId = scan.nextInt();
-        boolean flag=LogicalLayer.getInstance().isAlreadyCustomer(customerId);
+        boolean flag=LogicalLayer.getInstance().isActiveAlreadyCustomer(customerId);
         if(! flag)
         {
             System.out.println("Please enter the correct customerId...");
             return;
         }
+//        LogicalLayer.getInstance().loadActiveMap();
+//        LogicalLayer.getInstance().loadInActiveMap();
         try{
+            System.out.println("final");
             HashMap<Integer,HashMap> map = LogicalLayer.getInstance().getDetails(customerId);
             System.out.println(map);
         }
@@ -176,7 +194,7 @@ public class TestRunner {
     {
         System.out.println("Enter your CustomerId:");
         int customerId = scan.nextInt();
-        boolean flag=LogicalLayer.getInstance().isAlreadyCustomer(customerId);
+        boolean flag=LogicalLayer.getInstance().isActiveAlreadyCustomer(customerId);
         if(! flag)
         {
             System.out.println("Please enter the correct customerId...");
@@ -190,12 +208,14 @@ public class TestRunner {
         {
             System.out.println(e.getMessage());
         }
+        LogicalLayer.getInstance().loadActiveMap();
+        LogicalLayer.getInstance().loadInActiveMap();
     }
     public static void deleteAccount() throws Exception
     {
         System.out.println("Enter your CustomerId:");
         int customerId = scan.nextInt();
-        boolean flag=LogicalLayer.getInstance().isAlreadyCustomer(customerId);
+        boolean flag=LogicalLayer.getInstance().isActiveAlreadyCustomer(customerId);
         if(! flag)
         {
             System.out.println("Please enter the correct customerId...");
@@ -203,7 +223,7 @@ public class TestRunner {
         }
         System.out.println("Enter your account number:");
         int accountNumber = scan.nextInt();
-        boolean check = LogicalLayer.getInstance().isExistingAccount(accountNumber,customerId);
+        boolean check = LogicalLayer.getInstance().isActiveExistingAccount(accountNumber,customerId);
         if(! check)
         {
             System.out.println("Please enter the correct account number");
@@ -216,12 +236,14 @@ public class TestRunner {
         {
             System.out.println(e.getMessage());
         }
+        LogicalLayer.getInstance().loadActiveMap();
+        LogicalLayer.getInstance().loadInActiveMap();
     }
     public static void depositAmount() throws Exception
     {
         System.out.println("Enter your CustomerId:");
         int customerId = scan.nextInt();
-        boolean flag=LogicalLayer.getInstance().isAlreadyCustomer(customerId);
+        boolean flag=LogicalLayer.getInstance().isActiveAlreadyCustomer(customerId);
         if(! flag)
         {
             System.out.println("Please enter the correct customerId...");
@@ -229,7 +251,7 @@ public class TestRunner {
         }
         System.out.println("Enter your account number:");
         int accountNumber = scan.nextInt();
-        boolean check = LogicalLayer.getInstance().isExistingAccount(accountNumber,customerId);
+        boolean check = LogicalLayer.getInstance().isActiveExistingAccount(accountNumber,customerId);
         if(! check)
         {
             System.out.println("Please enter the correct account number");
@@ -249,7 +271,7 @@ public class TestRunner {
     {
         System.out.println("Enter your CustomerId:");
         int customerId = scan.nextInt();
-        boolean flag=LogicalLayer.getInstance().isAlreadyCustomer(customerId);
+        boolean flag=LogicalLayer.getInstance().isActiveAlreadyCustomer(customerId);
         if(! flag)
         {
             System.out.println("Please enter the correct customerId...");
@@ -257,7 +279,7 @@ public class TestRunner {
         }
         System.out.println("Enter your account number:");
         int accountNumber = scan.nextInt();
-        boolean check = LogicalLayer.getInstance().isExistingAccount(accountNumber,customerId);
+        boolean check = LogicalLayer.getInstance().isActiveExistingAccount(accountNumber,customerId);
         if(! check)
         {
             System.out.println("Please enter the correct account number");
@@ -278,5 +300,64 @@ public class TestRunner {
         {
             System.out.println(e.getMessage());
         }
+    }
+    public static void retrieveCustomer() throws Exception
+    {
+        System.out.println("Enter your CustomerId");
+        int customerId=scan.nextInt();
+        boolean activeCheck = LogicalLayer.getInstance().isActiveAlreadyCustomer(customerId);
+        boolean inActiveCheck = LogicalLayer.getInstance().isInActiveAlreadyCustomer(customerId);
+        if(activeCheck)
+        {
+            System.out.println("Looks like you have already activated id..Please check!");
+            return;
+        }
+        else if(!inActiveCheck)
+        {
+            System.out.println("Please enter the correct customerId...");
+            return;
+        }
+        System.out.println("Enter your accountNumber:");
+        int accountNumber=scan.nextInt();
+        boolean flag=LogicalLayer.getInstance().isInActiveExistingAccount(accountNumber,customerId);
+        if(!flag)
+        {
+            System.out.println("Please enter the correct accountNumber");
+            return;
+        }
+        LogicalLayer.getInstance().activateCustomer(customerId);
+        LogicalLayer.getInstance().activateAccount(customerId,accountNumber);
+        LogicalLayer.getInstance().loadActiveMap();
+        LogicalLayer.getInstance().loadInActiveMap();
+        System.out.println("User retrieved");
+    }
+    public static void retrieveAccount() throws Exception
+    {
+        System.out.println("Enter your CustomerId");
+        int customerId=scan.nextInt();
+        boolean activeCheck = LogicalLayer.getInstance().isActiveAlreadyCustomer(customerId);
+        boolean inActiveCheck = LogicalLayer.getInstance().isInActiveAlreadyCustomer(customerId);
+        if(!activeCheck && inActiveCheck)
+        {
+            System.out.println("Looks like your account is in deactivate mode!Please check!!");
+            return;
+        }
+        else if(!activeCheck)
+        {
+            System.out.println("Please enter correct customer id");
+            return;
+        }
+        System.out.println("Enter your accountNumber:");
+        int accountNumber=scan.nextInt();
+        boolean flag=LogicalLayer.getInstance().isActiveExistingAccount(accountNumber,customerId);
+        if(flag)
+        {
+            System.out.println("Already In activate mode!Please check!!");
+            return;
+        }
+        LogicalLayer.getInstance().activateAccount(customerId,accountNumber);
+        LogicalLayer.getInstance().loadActiveMap();
+        LogicalLayer.getInstance().loadInActiveMap();
+        System.out.println("Account retrieved");
     }
 }
